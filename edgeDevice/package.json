@@ -1,0 +1,15 @@
+{
+  "name": "edge_device_1",
+  "version": "1.0.0",
+  "description": "",
+  "main": "client.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "redis": "^2.5.2",
+    "socket.io-client": "^1.4.5"
+  }
+}

@@ -1,5 +1,5 @@
 var socket = require("socket.io-client")("http://localhost:3001/");
-
+/*
 var onInterval = setInterval(function() {
 	socket.emit("on_message", {
 		app_name: "lightSwitch",
@@ -18,3 +18,5 @@ socket.on("disconnect", function() {
 	clearInterval(onInterval);
 	clearInterval(offInterval);
 });
+*/
+require('./lib/routes/socket')(socket);

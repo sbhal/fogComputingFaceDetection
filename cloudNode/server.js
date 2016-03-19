@@ -2,8 +2,8 @@ var express = require('express');
 var app = express();
 //var http = require('http').Server(app);
 
-var redis = require('redis');
-var client = redis.createClient('6380', '127.0.0.1')
+//var redis = require('redis');
+//var client = redis.createClient('6380', '127.0.0.1')
 
 var sequence = 1,
 	clients = [];
@@ -30,8 +30,9 @@ io.on('connection', function(socket) {
 });
 
 function on_message_handler(data) {
-	console.log("On message handler invoked");
-	io.sockets.emit('update', data);
+	//console.log("On message handler invoked");
+	//io.sockets.emit('update', data);
+    io.sockets.emit('frame', data);
 }
 
 server.listen(3000);

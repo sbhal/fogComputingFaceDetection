@@ -9,6 +9,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "opencv": "^5.0.0",
     "redis": "^2.5.2",
     "socket.io-client": "^1.4.5"
   }

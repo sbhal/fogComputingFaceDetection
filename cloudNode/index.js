@@ -1,11 +1,14 @@
 var socket = io.connect('http://localhost:3000', {
   forceNew: true
 });
-//console.log("entered");
+var canvas = document.getElementById('canvas-video');
+var context = canvas.getContext('2d');
+var img = new Image();
+
 socket.on('connect', function() {
   var heading = document.createElement('h4');
   heading.textContent = "Connection Established";
-  document.getElementById('lightSwitch').appendChild(heading);
+  document.getElementById('sid').appendChild(heading);
 
   socket.on('update', function(data) {
     if (data.event == "on")
@@ -14,6 +17,22 @@ socket.on('connect', function() {
       document.body.style.background = 'black';
     addData(data);
   });
+  
+  socket.on('frame', function (data) {
+/*  var heading = document.createElement('p');
+  heading.textContent = "Connection";
+  document.getElementById('sid').appendChild(heading);
+*/// Reference: http://stackoverflow.com/questions/24107378/socket-io-began-to-support-binary-stream-from-1-0-is-there-a-complete-example-e/24124966#24124966
+  var uint8Arr = new Uint8Array(data.buffer);
+  var str = String.fromCharCode.apply(null, uint8Arr);
+  var base64String = btoa(str);
+
+  img.onload = function () {
+    context.drawImage(this, 0, 0, canvas.width, canvas.height);
+  };
+  img.src = 'data:image/png;base64,' + base64String;
+});
+
 });
 
 function addData(data) {

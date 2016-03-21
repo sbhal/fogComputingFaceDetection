@@ -3,13 +3,13 @@ var server = require('http').createServer();
 
 
 var socketP = require("socket.io-client")("http://localhost:3000/", {
-	forceNew: true
+    forceNew: true
 });
 
 socketP.on('connect', function(socket) {
-	socketP.on('update', function(data) {
-		console.log('update received');
-	});
+    socketP.on('update', function(data) {
+        console.log('update received');
+    });
 });
 
 // Websocket Server

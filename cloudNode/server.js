@@ -6,7 +6,9 @@ var app = express();
 //var client = redis.createClient('6380', '127.0.0.1')
 
 var sequence = 1,
-	clients = [];
+	clients = [],
+    parents = [],
+    childs = [];
 
 var server = require('http').createServer(app);
 var io = require('socket.io')(server);
@@ -16,7 +18,19 @@ app.get('/', function(req, res) {
 	res.sendFile(__dirname + '/index.html');
 });
 
-io.on('connection', function(socket) {
+io.use(function(socket, next){
+    //console.log("Query: ", socket.handshake.query);
+    // return the result of next() to accept the connection.
+    if (socket.handshake.query.isparent == '1') {
+        parents.push(socket);
+    } else if (socket.handshake.query.isparent == '0') {
+        childs.push(socket);
+    } 
+    return next();
+});
+
+
+io.on('connection', function(socket, data) {
 	console.info('New client connected (id=' + socket.id + ').');
 	clients.push(socket);
 	socket.on('on_message', on_message_handler);

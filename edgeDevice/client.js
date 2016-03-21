@@ -1,4 +1,6 @@
-var socket = require("socket.io-client")("http://localhost:3001/");
+var io = require('socket.io-client'),
+    socket = io.connect("http://localhost:3001/", { query: "isParent=0" })
+//var socket = require("socket.io-client")("http://localhost:3001/");
 /*
 var onInterval = setInterval(function() {
 	socket.emit("on_message", {
@@ -19,4 +21,13 @@ socket.on("disconnect", function() {
 	clearInterval(offInterval);
 });
 */
-require('./lib/routes/socket')(socket);
+
+socket.on('connect', function() {
+
+    console.log('EdgeDevice connected (id=' + socket.id + ').');
+
+    socket.on('on_message', function(data) {
+        console.log("msg sent");
+    });
+    require('./lib/routes/socket')(socket);
+});

@@ -9,6 +9,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "gps-distance": "0.0.4",
     "opencv": "^5.0.0",
     "redis": "^2.5.2",
     "socket.io": "^1.4.5"

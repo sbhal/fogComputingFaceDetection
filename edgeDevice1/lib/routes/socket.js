@@ -6,10 +6,10 @@ require("fs").readdirSync(normalizedPath).forEach(function(file) {
 });
 
 var distance = require('gps-distance');
-var appIOT = require('../../appIOT.js')
+//var appIOT = require('../../appIOT.js')
 
 var io = require("socket.io-client");
-var socketP = io("http://localhost:3000/", {
+myAllApps.socketP = io("http://localhost:3001/", {
     forceNew: true,
     query: "isParent=0"
 });
@@ -18,6 +18,7 @@ var coords = { lat: 110, lon: 110 },
     clients = [],
     thresDist = 100000;
 
+//this function is invoked for every unique client connection
 module.exports = function(socket) {
     console.info('New client connected (id=' + socket.id + ').');
     //clients.push(socket);

@@ -1,18 +1,4 @@
-var myAllApps = {};
-
-var normalizedPath = require("path").join(__dirname, "../..", "app");
-require("fs").readdirSync(normalizedPath).forEach(function(file) {
-  myAllApps['app'+file.replace(/[^0-9]/g,'')] = require(normalizedPath +'/'+ file);
-});
-
 var distance = require('gps-distance');
-//var appIOT = require('../../appIOT.js')
-
-var io = require("socket.io-client");
-myAllApps.socketP = io("http://localhost:3001/", {
-    forceNew: true,
-    query: "isParent=0"
-});
 
 var coords = { lat: 110, lon: 110 },
     clients = [],
@@ -45,7 +31,7 @@ module.exports = function(socket) {
 
 
 function on_message_handler(data) {
-    console.log("On message handler invoked");
+    //console.log("On message handler invoked");
     //console.log(distance(data.coords.lat, data.coords.lon, coords.lat, coords.lon));
     if (distance(data.coords.lat, data.coords.lon, coords.lat, coords.lon) > thresDist) {
         // if socket is parent
@@ -71,7 +57,7 @@ function on_message_handler(data) {
         //take decision to return from here or send to parent/child
         
         //appIOT['fn']('appHandler'+data.appID, this, data);
-        myAllApps['app'+data.appID].on_message(this, data); 
+        myAllApps['app'+data.appID](myAllApps).on_message(data); 
         
         //if msg is received from parent
         //    then send it to all my childrens
@@ -83,7 +69,7 @@ function on_message_handler(data) {
         //  then send it my parent
         if ('children' in this.rooms) {
             this.broadcast.to('parent').emit('on_message', data);
-            socketP.emit("on_message", data);
+            //socketP.emit("on_message", data);
         };
     }
 }
@@ -93,6 +79,7 @@ function on_new_child_handler(data) {
     console.log("On new child handler invoked");
     // join the socket to childrens room
     this.join('childeren');
+    myAllApps['app'+data.appID].on_new_child(this, data);
 }
 
 //not used
@@ -101,6 +88,7 @@ function on_new_parent_handler(data) {
     console.log("On new parent handler invoked");
     // join the socket to parent room
     this.join('parent');
+    myAllApps['app'+data.appID].on_new_parent(this, data);
 }
 
 //Sends a message from a node to its child nodes.
@@ -108,6 +96,7 @@ function on_child_leave_handler(data) {
     console.log("On child leave handler invoked");
     // remove socket from children room
     this.leave('childeren');
+    myAllApps['app'+data.appID].on_child_leave(this, data);
 }
 
 //Sends a message to a specific destination node.
@@ -115,6 +104,7 @@ function on_parent_leave_handler(data) {
     console.log("On parent leave handler invoked");
     // remove socket from parent room
     this.leave('parent');
+    myAllApps['app'+data.appID].on_parent_leave(this, data);
 }
 
 function disconnect_handler(socket) {

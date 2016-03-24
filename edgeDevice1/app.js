@@ -1,13 +1,28 @@
 var args = process.argv.slice(2);
+var glob = require("glob");
+var path = require("path");
+var fs = require('fs');
 
 global.myAllApps = {};
-global.config = myAllApps.config = require('./lib/config/' + args[0] + '.js');
-var normalizedPath = require("path").join(__dirname, "app");
 myAllApps.appsCount = 0;
-require("fs").readdirSync(normalizedPath).forEach(function(file) {
-    myAllApps['app' + file.replace(/[^0-9]/g, '')] = require(normalizedPath + '/' + file);
+var appPath = path.join(__dirname, "apps");
+getDirectories(appPath).forEach(function(dir) {
+    myAllApps['app' + dir.replace(/[^0-9]/g, '')] = require(path.join(appPath, dir, dir + ".js"));
     myAllApps.appsCount++;
 });
+
+function getDirectories(srcpath) {
+    return fs.readdirSync(srcpath).filter(function(file) {
+        return fs.statSync(path.join(srcpath, file)).isDirectory();
+    });
+}
+
+glob("*/app*.js", { cwd: appPath }, function(err, files) {
+    files.forEach(function(file) {
+    })
+})
+
+global.config = myAllApps.config = require(path.join(__dirname, "lib", "config", args[0] + '.js'));
 
 var fogAPI = require('./lib/fogAPI.js')(myAllApps);
 // if this is edge level
@@ -21,9 +36,9 @@ function startServer(cb) {
     myAllApps.server = require('http').createServer();
     // Websocket Server
     myAllApps.io = require('socket.io')(myAllApps.server);
-    myAllApps.io.on('connection', function(socket){
+    myAllApps.io.on('connection', function(socket) {
         require('./lib/routes/socket')(socket);
-        if(cb) cb(null, myAllApps);
+        if (cb) cb(null, myAllApps);
     }); //this is socket
     myAllApps.server.listen(config.serverPort);
 
@@ -36,7 +51,7 @@ function connectClient(cb) {
     myAllApps.socketParent.on('connect', function() {
         console.log('Client Node connected (id=' + myAllApps.socketParent.id + ').');
         // call on create handler of app
-        if(cb) cb(null, myAllApps, this);
+        if (cb) cb(null, myAllApps, this);
         //for (var i = 1; i <= myAllApps.appsCount; ++i)
         //    myAllApps['app' + i](myAllApps).on_create(this, "test"); //passing socket
 
@@ -44,9 +59,9 @@ function connectClient(cb) {
     });
 }
 
-function startApps(err, myAllApps, socket){
+function startApps(err, myAllApps, socket) {
     for (var i = 1; i <= myAllApps.appsCount; ++i)
-            myAllApps['app' + i](myAllApps).on_create(socket, "test"); //passing socket
+        myAllApps['app' + i](myAllApps).on_create(socket, "test"); //passing socket
 }
 
 if (myAllApps.config.level == 0) {

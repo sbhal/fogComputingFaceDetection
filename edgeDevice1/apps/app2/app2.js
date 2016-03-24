@@ -1,5 +1,7 @@
+var path = require("path");
+
 module.exports = function (myAllApps){
-var fogAPI = require('../lib/fogAPI.js')(myAllApps);
+var fogAPI = require(path.join(__dirname, '../..', "lib", "fogAPI.js"))(myAllApps);
     var module = {};
     module.on_create= function(){
         console.log("App 2 is starting");

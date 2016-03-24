@@ -1,14 +1,12 @@
 
 var path = require("path");
-//var io;
+var io;
+var conn_established = 0;
+
 module.exports = function(myAllApps) {
-    var fogAPI = require('../lib/fogAPI.js')(myAllApps);
+    var fogAPI = require(path.join(__dirname, '../..', "lib", "fogAPI.js"))(myAllApps);
     var module = {};
-    
-    var conn_established = 0;
     module.on_create = function(socket) {
-        console.log("App 1 is starting");
-        console.log(fogAPI.queryLevel());
         if (fogAPI.queryLevel() == 0) {
             console.log("App 1 is starting at edge");
             //call query capability to know level and active sensors on this node
@@ -45,7 +43,7 @@ module.exports = function(myAllApps) {
                             im.rectangle([face.x, face.y], [face.width, face.height], rectColor, rectThickness);
                         }
 
-                        console.log('<-- sending msg from edge');
+                        //console.log('<-- sending msg from edge');
                         socket.emit('on_message', {
                             buffer: im.toBuffer(),
                             coords: { lat: 100, lon: 100 },
@@ -65,12 +63,10 @@ module.exports = function(myAllApps) {
             var express = require('express');
             var app = express();
             var server = require('http').createServer(app);
-            global.io = require('socket.io')(server);
-            //app.use(express.static(__dirname));
-            app.use(express.static(path.join(__dirname, '..')));
+            io = require('socket.io')(server);
+            app.use(express.static(__dirname));
             app.get('/', function(req, res) {
-                //res.sendFile(__dirname + '../index.html');
-                res.sendFile('/home/sbhal/Documents/fogComputing/edgeDevice1/index.html');
+                res.sendFile(__dirname + '/index.html');
             });
             io.on('connection', function(socket) {
                 conn_established = 1;
@@ -101,8 +97,9 @@ module.exports = function(myAllApps) {
             } else {
                 // cloud node
                 console.log('msg received on cloud');
-                //if (conn_established == 1)
+                if (io && conn_established === 1) {
                     io.sockets.emit('frame', data);
+                }
             }
         },
         module.on_new_child = function() {

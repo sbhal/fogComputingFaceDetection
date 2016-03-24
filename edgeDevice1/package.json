@@ -10,6 +10,7 @@
   "license": "ISC",
   "dependencies": {
     "express": "^4.13.4",
+    "glob": "^7.0.3",
     "gps-distance": "0.0.4",
     "opencv": "^5.0.0",
     "redis": "^2.5.2",

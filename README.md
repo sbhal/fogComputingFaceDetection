@@ -1,3 +1,34 @@
+Documentation:
+
+This application is used for Real time face detection using OpenCV, Node.js and Websockets
+using Mobile fog programming model.
+
+
+Requirements:
+NodeJS
+OpenCV
+Webcam
+
+Installation
+npm install .
+
+Running the Application:
+node app.js <arg>
+arg = cloud/ fog/ edge
+
+The config file for cloudNode/fogNode/edgeDevice are present at /config/*.
+
+Sample config file has:
+{
+  serverPort: 3001, //defines port on which server is going to start
+  parentNodePort: 3000, //defines port of parent node
+  level: 1, // defines network level in herirarchy.
+  coords: {lat: 100, lon: 100}, // starting coordinates of device
+  noOfSensors: 1, // number of sensors present
+  sensorType: 'webcam' // type of sensor present
+}
+
+
 // sending to sender-client only
  socket.emit('message', "this is a test");
 

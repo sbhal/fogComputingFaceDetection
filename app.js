@@ -4,21 +4,22 @@ var path = require("path");
 var fs = require('fs');
 
 global.myAllApps = {};
+myAllApps.myArray = {};
 myAllApps.appsCount = 0;
 var appPath = path.join(__dirname, "apps");
-getDirectories(appPath).forEach(function(dir) {
+getDirectories(appPath).forEach(function (dir) {
     myAllApps['app' + dir.replace(/[^0-9]/g, '')] = require(path.join(appPath, dir, dir + ".js"));
     myAllApps.appsCount++;
 });
 
 function getDirectories(srcpath) {
-    return fs.readdirSync(srcpath).filter(function(file) {
+    return fs.readdirSync(srcpath).filter(function (file) {
         return fs.statSync(path.join(srcpath, file)).isDirectory();
     });
 }
 
-glob("*/app*.js", { cwd: appPath }, function(err, files) {
-    files.forEach(function(file) {
+glob("*/app*.js", { cwd: appPath }, function (err, files) {
+    files.forEach(function (file) {
     })
 })
 
@@ -36,7 +37,7 @@ function startServer(cb) {
     myAllApps.server = require('http').createServer();
     // Websocket Server
     myAllApps.io = require('socket.io')(myAllApps.server);
-    myAllApps.io.on('connection', function(socket) {
+    myAllApps.io.on('connection', function (socket) {
         require('./lib/routes/socket')(socket);
         if (cb) cb(null, myAllApps);
     }); //this is socket
@@ -48,12 +49,23 @@ function connectClient(cb) {
     var io = require('socket.io-client');
     myAllApps.socketParent = io.connect("http://localhost:" + config.parentNodePort + "/", { query: "isParent=0" })
 
-    myAllApps.socketParent.on('connect', function() {
+    myAllApps.socketParent.on('connect', function () {
         console.log('Client Node connected (id=' + myAllApps.socketParent.id + ').');
         // call on create handler of app
         if (cb) cb(null, myAllApps, this);
         //for (var i = 1; i <= myAllApps.appsCount; ++i)
         //    myAllApps['app' + i](myAllApps).on_create(this, "test"); //passing socket
+        //safdar
+        myAllApps.socketParent.on('on_message', function (data) {
+            myAllApps.myArray[data.pktId.toString()].endTime = Date.now();
+            if(Object.keys(myAllApps.myArray).length == 20){
+                console.log(myAllApps.myArray);
+                process.exit();
+            }
+            console.log(Date.now() + " msg down recteived with pkt ID " + data.pktId);
+            if(myAllApps.io)
+                myAllApps.io.emit("on_message", data);
+        });
 
         //require('./lib/routes/socket')(myAllApps);
     });
